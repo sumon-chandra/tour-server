@@ -1,6 +1,7 @@
 import mongoose from "mongoose"
 import { Server } from "node:http"
 import app from "./app"
+import { envVars } from "./config/env"
 
 let server: Server
 
@@ -8,8 +9,8 @@ const connectServer = async () => {
     try {
         await mongoose.connect("mongodb+srv://idevsumon:idevsumon@clustertour.y0fyyxe.mongodb.net/TourBackendDB")
         console.log("MongoDB connected successfully!")
-        server = app.listen(5000, () => {
-            console.log("Server is listing on port http://localhost:5000")
+        server = app.listen(envVars.PORT, () => {
+            console.log(`Server is listing on port http://localhost:${envVars.PORT}`)
         })
     } catch (error) {
         console.log(error)
