@@ -5,7 +5,7 @@ export const router = Router()
 
 const modulesRouters = [
     {
-        path: "/user",
+        path: "/users",
         route: UserRoutes
     }
 ]

@@ -1,9 +1,8 @@
-import express, { NextFunction, Request, Response } from "express"
+import express, { Request, Response } from "express"
 import cors from "cors"
 import { router } from "./routes"
-import httpStatusCode from "http-status-codes"
-import { envVars } from "./config/env"
 import { globalErrorHandler } from "./middlewares/global-error-handler"
+import notFound from "./middlewares/not-found"
 
 
 const app = express()
@@ -17,4 +16,6 @@ app.get("/", (req: Request, res: Response) => {
 })
 
 app.use(globalErrorHandler)
+app.use(notFound)
+
 export default app
