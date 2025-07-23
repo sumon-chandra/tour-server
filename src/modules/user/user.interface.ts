@@ -8,7 +8,9 @@ export enum IsActive {
 
 export enum Role {
     ADMIN = "ADMIN",
-    USER = "USER"
+    USER = "USER",
+    GUIDE = "GUIDE",
+    SUPER_ADMIN = "SUPER_ADMIN"
 }
 
 export interface IAuthProvider {
