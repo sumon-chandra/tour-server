@@ -1,12 +1,27 @@
-import { IUser } from "./user.interface"
+import AppError from "../../error-helpers/app-error"
+import { IAuthProvider, IUser } from "./user.interface"
 import { User } from "./user.model"
+import httpStatus from "http-status-codes"
+import bcrypt from "bcryptjs"
 
 const createUser = async (payload: Partial<IUser>) => {
-    const { name, email } = payload
+    const { email, password, ...rest } = payload
+
+    const ifUserExist = await User.findOne({ email })
+
+    if (ifUserExist) {
+        throw new AppError(httpStatus.BAD_REQUEST, "Hmm, looks like you have already registered. Please try with different user.")
+    }
+
+    const hashedPassword = await bcrypt.hash(password as string, 10)
+
+    const authProvider: IAuthProvider = { provider: "credentials", providerId: email as string }
 
     const user = await User.create({
-        name,
-        email
+        email,
+        password: hashedPassword,
+        auths: [authProvider],
+        ...rest
     })
 
     return user
