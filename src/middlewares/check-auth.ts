@@ -13,6 +13,7 @@ export const checkAuth = (...authRoles: string[]) => async (req: Request, res: R
         }
 
         const verifiedToken = verifyToken(accessToken, envVars.JWT_ACCESS_SECRET) as JwtPayload
+        req.user = verifiedToken
         if (!authRoles.includes(verifiedToken.role)) {
             throw new AppError(403, "You have no permission to access this page!")
         }
