@@ -8,6 +8,16 @@ const credentialsLogin = catchAsync(async (req: Request, res: Response, next: Ne
 
     const loginInfo = await AuthServices.credentialsLogin(req.body)
 
+    res.cookie("accessToken", loginInfo.accessToken, {
+        httpOnly: true,
+        secure: false
+    })
+
+    res.cookie("refreshToken", loginInfo.refreshToken, {
+        httpOnly: true,
+        secure: false
+    })
+
     sendResponse(res, {
         success: true,
         statusCode: httpStatusCode.OK,
@@ -16,8 +26,7 @@ const credentialsLogin = catchAsync(async (req: Request, res: Response, next: Ne
     })
 })
 const getNewUserAccessToken = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    // const refreshToken = req.cookies.refreshToken
-    const refreshToken = req.headers.authorization
+    const refreshToken = req.cookies.refreshToken
     const tokenInfo = await AuthServices.getNewUserAccessToken(refreshToken as string)
 
     sendResponse(res, {

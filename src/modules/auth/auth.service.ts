@@ -1,12 +1,9 @@
 import AppError from "../../error-helpers/app-error"
-import { IsActive, IUser } from "../user/user.interface"
+import { IUser } from "../user/user.interface"
 import { User } from "../user/user.model"
 import httpStatus from "http-status-codes"
 import bcrypt from "bcryptjs"
-import { createUserTokens } from "../../utils/user-token"
-import { generateToken, verifyToken } from "../../utils/jwt"
-import { envVars } from "../../config/env"
-import { JwtPayload } from "jsonwebtoken"
+import { createAccessTokenWithRefreshToken, createUserTokens } from "../../utils/user-token"
 
 const credentialsLogin = async (payload: Partial<IUser>) => {
     const { email, password } = payload
@@ -33,36 +30,10 @@ const credentialsLogin = async (payload: Partial<IUser>) => {
     }
 }
 const getNewUserAccessToken = async (refreshToken: string) => {
-    const verifiedToken = verifyToken(refreshToken, envVars.JWT_REFRESH_SECRET) as JwtPayload
-
-    const isUserExist = await User.findOne({ email: verifiedToken.email })
-
-    if (!isUserExist) {
-        throw new AppError(httpStatus.NOT_FOUND, "User does not exist.")
-    }
-
-    if (isUserExist.isActive === IsActive.BLOCKED) {
-        throw new AppError(httpStatus.FORBIDDEN, "User is blocked.")
-    }
-
-    if (isUserExist.isActive === IsActive.INACTIVE) {
-        throw new AppError(httpStatus.FORBIDDEN, "User is inactive.")
-    }
-
-    if (isUserExist.isDeleted) {
-        throw new AppError(httpStatus.FORBIDDEN, "User is deleted.")
-    }
-
-    const jwtPayload = {
-        userId: isUserExist._id,
-        email: isUserExist.email,
-        role: isUserExist.role
-    }
-
-    const accessToken = generateToken(jwtPayload, envVars.JWT_ACCESS_SECRET, envVars.JWT_ACCESS_EXPIRES)
+    const newAccessToken = createAccessTokenWithRefreshToken(refreshToken)
 
     return {
-        accessToken
+        accessToken: newAccessToken
     }
 }
 
