@@ -4,3 +4,4 @@ import { AuthControllers } from "./auth.controller";
 export const AuthRouter = Router()
 
 AuthRouter.post("/login", AuthControllers.credentialsLogin)
+AuthRouter.post("/refresh-token", AuthControllers.getNewUserAccessToken)

@@ -15,7 +15,20 @@ const credentialsLogin = catchAsync(async (req: Request, res: Response, next: Ne
         data: loginInfo
     })
 })
+const getNewUserAccessToken = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    // const refreshToken = req.cookies.refreshToken
+    const refreshToken = req.headers.authorization
+    const tokenInfo = await AuthServices.getNewUserAccessToken(refreshToken as string)
+
+    sendResponse(res, {
+        success: true,
+        statusCode: httpStatusCode.OK,
+        message: "Get Access Token Successfully!",
+        data: tokenInfo
+    })
+})
 
 export const AuthControllers = {
-    credentialsLogin
+    credentialsLogin,
+    getNewUserAccessToken
 }
