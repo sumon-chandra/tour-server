@@ -2,6 +2,7 @@ import mongoose from "mongoose"
 import { Server } from "node:http"
 import app from "./app"
 import { envVars } from "./config/env"
+import { seedSuperAdmin } from "./utils/seed-super-admin"
 
 let server: Server
 
@@ -17,7 +18,10 @@ const connectServer = async () => {
     }
 }
 
-connectServer()
+(async () => {
+    await connectServer()
+    await seedSuperAdmin()
+})()
 
 process.on("unhandledRejection", () => {
     console.log("Unhandled Rejection founded!! Server shut down.")

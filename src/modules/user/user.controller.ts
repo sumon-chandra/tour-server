@@ -1,8 +1,11 @@
+import { verifyToken } from './../../utils/jwt';
 import { NextFunction, Request, Response } from "express";
 import httpStatusCode from "http-status-codes"
 import { UserServices } from "./user.service";
 import { catchAsync } from "../../utils/catch-async";
 import { sendResponse } from "../../utils/send-response";
+import { envVars } from '../../config/env';
+import { JwtPayload } from 'jsonwebtoken';
 
 
 
@@ -29,8 +32,22 @@ const getAllUsers = catchAsync(async (req: Request, res: Response, next: NextFun
     })
 })
 
+const updateUser = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    const userId = req.params.id
+    const verifiedToken = req.user
+    const payload = req.body
+    const user = await UserServices.updateUser(userId, payload, verifiedToken)
+
+    sendResponse(res, {
+        success: true,
+        statusCode: httpStatusCode.CREATED,
+        message: "User Updated Successfully!",
+        data: user
+    })
+})
 
 export const userControllers = {
     createUser,
-    getAllUsers
+    getAllUsers,
+    updateUser
 }

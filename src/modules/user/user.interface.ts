@@ -8,22 +8,25 @@ export enum IsActive {
 
 export enum Role {
     ADMIN = "ADMIN",
-    USER = "USER"
+    USER = "USER",
+    GUIDE = "GUIDE",
+    SUPER_ADMIN = "SUPER_ADMIN"
 }
 
 export interface IAuthProvider {
-    provider: string,
+    provider: "google" | "credentials",
     providerId: string
 }
 
 export interface IUser {
+    _id?: Types.ObjectId
     name: string,
     email: string,
     password?: string,
     phone?: string,
     address?: string,
     picture?: string,
-    isVerified?: string
+    isVerified?: boolean
     isActive?: IsActive,
     isDeleted?: string,
 
