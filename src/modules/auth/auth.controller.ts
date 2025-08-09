@@ -3,21 +3,12 @@ import { catchAsync } from "../../utils/catch-async"
 import { sendResponse } from "../../utils/send-response"
 import httpStatusCode from "http-status-codes"
 import { AuthServices } from "./auth.service"
+import { setAuthCookies } from "../../utils/set-cookies"
 
 const credentialsLogin = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
 
     const loginInfo = await AuthServices.credentialsLogin(req.body)
-
-    res.cookie("accessToken", loginInfo.accessToken, {
-        httpOnly: true,
-        secure: false
-    })
-
-    res.cookie("refreshToken", loginInfo.refreshToken, {
-        httpOnly: true,
-        secure: false
-    })
-
+    setAuthCookies(res, loginInfo)
     sendResponse(res, {
         success: true,
         statusCode: httpStatusCode.OK,
@@ -28,7 +19,7 @@ const credentialsLogin = catchAsync(async (req: Request, res: Response, next: Ne
 const getNewUserAccessToken = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const refreshToken = req.cookies.refreshToken
     const tokenInfo = await AuthServices.getNewUserAccessToken(refreshToken as string)
-
+    setAuthCookies(res, tokenInfo)
     sendResponse(res, {
         success: true,
         statusCode: httpStatusCode.OK,
