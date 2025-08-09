@@ -3,11 +3,12 @@ import { catchAsync } from "../../utils/catch-async"
 import { sendResponse } from "../../utils/send-response"
 import httpStatusCode from "http-status-codes"
 import { AuthServices } from "./auth.service"
+import { setAuthCookies } from "../../utils/set-cookies"
 
 const credentialsLogin = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
 
     const loginInfo = await AuthServices.credentialsLogin(req.body)
-
+    setAuthCookies(res, loginInfo)
     sendResponse(res, {
         success: true,
         statusCode: httpStatusCode.OK,
@@ -15,11 +16,44 @@ const credentialsLogin = catchAsync(async (req: Request, res: Response, next: Ne
         data: loginInfo
     })
 })
-const getNewUserAccessToken = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    // const refreshToken = req.cookies.refreshToken
-    const refreshToken = req.headers.authorization
-    const tokenInfo = await AuthServices.getNewUserAccessToken(refreshToken as string)
 
+const logout = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    res.clearCookie("accessToken", {
+        httpOnly: true,
+        secure: false,
+        sameSite: "lax"
+    })
+    res.clearCookie("refreshToken", {
+        httpOnly: true,
+        secure: false,
+        sameSite: "lax"
+    })
+
+    sendResponse(res, {
+        success: true,
+        statusCode: httpStatusCode.OK,
+        message: "User Logged Out Successfully!",
+        data: null
+    })
+})
+
+const resetPassword = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    const { oldPassword, newPassword } = req.body
+    const decodedToken = req.user
+    await AuthServices.resetPassword(oldPassword, newPassword, decodedToken)
+
+    sendResponse(res, {
+        success: true,
+        statusCode: httpStatusCode.OK,
+        message: "Password Changed Successfully!",
+        data: null
+    })
+})
+
+const getNewUserAccessToken = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    const refreshToken = req.cookies.refreshToken
+    const tokenInfo = await AuthServices.getNewUserAccessToken(refreshToken as string)
+    setAuthCookies(res, tokenInfo)
     sendResponse(res, {
         success: true,
         statusCode: httpStatusCode.OK,
@@ -30,5 +64,7 @@ const getNewUserAccessToken = catchAsync(async (req: Request, res: Response, nex
 
 export const AuthControllers = {
     credentialsLogin,
-    getNewUserAccessToken
+    getNewUserAccessToken,
+    logout,
+    resetPassword
 }
