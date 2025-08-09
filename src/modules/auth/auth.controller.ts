@@ -1,9 +1,12 @@
+import { createUserTokens } from './../../utils/user-token';
 import { NextFunction, Request, Response } from "express"
 import { catchAsync } from "../../utils/catch-async"
 import { sendResponse } from "../../utils/send-response"
 import httpStatusCode from "http-status-codes"
 import { AuthServices } from "./auth.service"
 import { setAuthCookies } from "../../utils/set-cookies"
+import AppError from "../../error-helpers/app-error"
+import { envVars } from '../../config/env';
 
 const credentialsLogin = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
 
@@ -40,6 +43,11 @@ const logout = catchAsync(async (req: Request, res: Response, next: NextFunction
 const resetPassword = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const { oldPassword, newPassword } = req.body
     const decodedToken = req.user
+
+    if (!decodedToken) {
+        throw new AppError(httpStatusCode.NOT_FOUND, "User Not Found!")
+    }
+
     await AuthServices.resetPassword(oldPassword, newPassword, decodedToken)
 
     sendResponse(res, {
@@ -62,9 +70,26 @@ const getNewUserAccessToken = catchAsync(async (req: Request, res: Response, nex
     })
 })
 
+const googleCallbackController = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    let redirectTo = req.query.state ? req.query.state as string : ""
+    if (redirectTo.startsWith("/")) {
+        redirectTo = redirectTo.slice(1)
+    }
+    const user = req.user
+
+    if (!user) {
+        throw new AppError(httpStatusCode.NOT_FOUND, "User Not Found!")
+    }
+
+    const tokenInfo = createUserTokens(user)
+    setAuthCookies(res, tokenInfo)
+    res.redirect(`${envVars.FRONTEND_URL}/${redirectTo}`)
+})
+
 export const AuthControllers = {
     credentialsLogin,
     getNewUserAccessToken,
     logout,
-    resetPassword
+    resetPassword,
+    googleCallbackController
 }
