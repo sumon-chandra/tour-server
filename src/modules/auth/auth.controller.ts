@@ -16,6 +16,27 @@ const credentialsLogin = catchAsync(async (req: Request, res: Response, next: Ne
         data: loginInfo
     })
 })
+
+const logout = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    res.clearCookie("accessToken", {
+        httpOnly: true,
+        secure: false,
+        sameSite: "lax"
+    })
+    res.clearCookie("refreshToken", {
+        httpOnly: true,
+        secure: false,
+        sameSite: "lax"
+    })
+
+    sendResponse(res, {
+        success: true,
+        statusCode: httpStatusCode.OK,
+        message: "User Logged Out Successfully!",
+        data: null
+    })
+})
+
 const getNewUserAccessToken = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const refreshToken = req.cookies.refreshToken
     const tokenInfo = await AuthServices.getNewUserAccessToken(refreshToken as string)
@@ -30,5 +51,6 @@ const getNewUserAccessToken = catchAsync(async (req: Request, res: Response, nex
 
 export const AuthControllers = {
     credentialsLogin,
-    getNewUserAccessToken
+    getNewUserAccessToken,
+    logout
 }
