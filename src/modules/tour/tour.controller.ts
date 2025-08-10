@@ -16,6 +16,45 @@ const createTourType = catchAsync(async (req: Request, res: Response, next: Next
     })
 })
 
+const getAllTourTypes = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    const tourTypes = await TourServices.getAllTourTypes()
+
+    sendResponse(res, {
+        success: true,
+        statusCode: httpStatusCode.OK,
+        message: "Tour Type Retrieved Successfully!",
+        data: tourTypes
+    })
+})
+
+const updateTourType = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    const typeId = req.params.id
+    const payload = req.body
+    const updatedTourType = await TourServices.updateTourType(payload, typeId)
+
+    sendResponse(res, {
+        success: true,
+        statusCode: httpStatusCode.OK,
+        message: "Tour Type Updated Successfully!",
+        data: updatedTourType
+    })
+})
+
+const getTourTypeById = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    const typeId = req.params.id
+    const tourType = await TourServices.getTourTypeById(typeId)
+
+    sendResponse(res, {
+        success: true,
+        statusCode: httpStatusCode.OK,
+        message: `Get ${tourType.name} Tour Type Successfully`,
+        data: tourType
+    })
+})
+
 export const TourControllers = {
-    createTourType
+    createTourType,
+    getAllTourTypes,
+    updateTourType,
+    getTourTypeById
 }

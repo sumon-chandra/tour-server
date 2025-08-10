@@ -8,3 +8,6 @@ import { createTourTypeZodSchema } from "./tour.validation";
 export const TourRouter = Router()
 
 TourRouter.post("/create-tour-type", checkAuth(Role.ADMIN, Role.SUPER_ADMIN), validateRequest(createTourTypeZodSchema), TourControllers.createTourType)
+TourRouter.get("/tour-types", TourControllers.getAllTourTypes)
+TourRouter.patch("/tour-types/:id", checkAuth(Role.ADMIN, Role.SUPER_ADMIN), TourControllers.updateTourType)
+TourRouter.get("/tour-types/:id", TourControllers.getTourTypeById)
