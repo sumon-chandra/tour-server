@@ -1,6 +1,7 @@
 import { Types } from "mongoose"
 
 export interface ITourType {
+    _id?: string
     name: string
 }
 

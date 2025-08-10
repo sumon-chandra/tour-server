@@ -36,7 +36,7 @@ const updateUser = catchAsync(async (req: Request, res: Response, next: NextFunc
     const userId = req.params.id
     const verifiedToken = req.user
     const payload = req.body
-    const user = await UserServices.updateUser(userId, payload, verifiedToken)
+    const user = await UserServices.updateUser(userId, payload, verifiedToken!)
 
     sendResponse(res, {
         success: true,
