@@ -18,7 +18,8 @@ const createTour = catchAsync(async (req: Request, res: Response, next: NextFunc
 });
 
 const getAllTour = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-	const tours = await TourServices.getAllTour();
+	const query = req.query as Record<string, string>;
+	const tours = await TourServices.getAllTour(query);
 
 	sendResponse(res, {
 		success: true,
