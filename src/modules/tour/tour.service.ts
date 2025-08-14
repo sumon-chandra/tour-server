@@ -4,15 +4,10 @@ import { ITour, ITourType } from "./tour.interface";
 import { Tour, TourType } from "./tour.model";
 
 const createTour = async (payload: Partial<ITour>) => {
-	const slug = payload.title?.toLowerCase().split(" ").join("-");
-	const isTourExist = await Tour.findOne({ slug });
-
+	const isTourExist = await Tour.findOne({ title: payload.title });
 	if (isTourExist) {
 		throw new AppError(httpStatus.CONFLICT, "Looks like this tour is already exist! Try with a new one.");
 	}
-
-	payload.slug = slug;
-
 	const newTour = await Tour.create(payload);
 	return newTour;
 };
@@ -42,12 +37,6 @@ const updateTour = async (tourId: string, payload: Partial<ITour>) => {
 	if (!isTourExist) {
 		throw new AppError(httpStatus.NOT_FOUND, "The tour is not found.");
 	}
-
-	if (payload.title) {
-		const slug = payload.title?.toLowerCase().split(" ").join("-");
-		payload.slug = slug;
-	}
-
 	const updatedTour = await Tour.findByIdAndUpdate(tourId, payload, { new: true });
 	return updatedTour;
 };

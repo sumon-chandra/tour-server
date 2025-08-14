@@ -6,19 +6,8 @@ import { Division } from "./division.model";
 const createDivision = async (payload: IDivision) => {
 	const isDivisionExist = await Division.findOne({ name: payload.name });
 	if (isDivisionExist) {
-		throw new AppError(httpStatus.CONFLICT, `${payload.name} is already exist. Try with a new one.`);
+		throw new AppError(httpStatus.CONFLICT, "A division with this name is already exist. Try with the new one.");
 	}
-
-	const baseSlug = payload.name?.toLowerCase().split(" ").join("-");
-	let slug = `${baseSlug}-division`;
-
-	let count = 0;
-	while (await Division.exists({ slug })) {
-		slug = `${slug}-${count++}`;
-	}
-
-	payload.slug = slug;
-
 	const newDivision = await Division.create(payload);
 	return newDivision;
 };
@@ -45,12 +34,6 @@ const updateDivision = async (divisionId: string, payload: Partial<IDivision>) =
 
 	if (duplicateDivision) {
 		throw new AppError(httpStatus.CONFLICT, "This division is already exist!. Try with a new one.");
-	}
-
-	if (payload.name) {
-		const baseSlug = payload.name?.toLowerCase().split(" ").join("-");
-		const slug = `${baseSlug}-division`;
-		payload.slug = slug;
 	}
 
 	const UpdatedDivision = await Division.findByIdAndUpdate(divisionId, payload, { new: true, runValidators: true });

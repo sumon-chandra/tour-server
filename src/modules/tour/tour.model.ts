@@ -45,4 +45,34 @@ const tourSchema = new Schema<ITour>(
 	}
 );
 
+tourSchema.pre("save", async function (next) {
+	if (this.isModified("title")) {
+		const baseSlug = this.title?.toLowerCase().split(" ").join("-");
+		let slug = `${baseSlug}`;
+
+		let count = 0;
+		while (await Tour.exists({ slug })) {
+			slug = `${slug}-${count++}`;
+		}
+		this.slug = slug;
+	}
+	next();
+});
+
+tourSchema.pre("findOneAndUpdate", async function (next) {
+	const division = this.getUpdate() as ITour;
+	if (division.title) {
+		const baseSlug = division.title?.toLowerCase().split(" ").join("-");
+		let slug = `${baseSlug}`;
+
+		let count = 0;
+		while (await Tour.exists({ slug })) {
+			slug = `${slug}-${count++}`;
+		}
+		division.slug = slug;
+	}
+	this.setUpdate(division);
+	next();
+});
+
 export const Tour = model<ITour>("Tour", tourSchema);
