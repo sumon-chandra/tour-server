@@ -142,7 +142,6 @@ export const updateTourZodSchema = z.object({
 		})
 		.min(1, "Tour title cannot be empty.")
 		.optional(),
-
 	slug: z
 		.string({
 			error: () => ({
@@ -151,7 +150,6 @@ export const updateTourZodSchema = z.object({
 		})
 		.min(1, "Slug cannot be empty.")
 		.optional(),
-
 	description: z
 		.string({
 			error: () => ({
@@ -159,9 +157,7 @@ export const updateTourZodSchema = z.object({
 			}),
 		})
 		.optional(),
-
 	images: z.array(z.string().url("Each image must be a valid URL.")).optional(),
-
 	location: z
 		.string({
 			error: () => ({
@@ -169,7 +165,6 @@ export const updateTourZodSchema = z.object({
 			}),
 		})
 		.optional(),
-
 	costFrom: z
 		.number({
 			error: () => ({
@@ -178,7 +173,6 @@ export const updateTourZodSchema = z.object({
 		})
 		.positive("Cost must be greater than zero.")
 		.optional(),
-
 	stateDate: z
 		.preprocess(
 			(val) => (typeof val === "string" || val instanceof Date ? new Date(val) : val),
@@ -191,7 +185,6 @@ export const updateTourZodSchema = z.object({
 			})
 		)
 		.optional(),
-
 	endDate: z
 		.preprocess(
 			(val) => (typeof val === "string" || val instanceof Date ? new Date(val) : val),
@@ -204,15 +197,12 @@ export const updateTourZodSchema = z.object({
 			})
 		)
 		.optional(),
-
+	departureLocation: z.string({ message: "Departure location must be a text." }).optional(),
+	arrivalLocation: z.string({ message: "Arrival location must be a text." }).optional(),
 	included: z.array(z.string({ message: "Each included item must be text." })).optional(),
-
 	excluded: z.array(z.string({ message: "Each excluded item must be text." })).optional(),
-
 	amenities: z.array(z.string({ message: "Each amenity must be text." })).optional(),
-
 	tourPlan: z.array(z.string({ message: "Each tour plan entry must be text." })).optional(),
-
 	maxGuest: z
 		.number({
 			error: () => ({
