@@ -25,7 +25,8 @@ const getAllTour = catchAsync(async (req: Request, res: Response, next: NextFunc
 		success: true,
 		statusCode: httpStatusCode.OK,
 		message: "All Tour Retrieved Successfully!",
-		data: tours,
+		data: tours.data,
+		meta: tours.meta,
 	});
 });
 

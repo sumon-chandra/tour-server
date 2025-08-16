@@ -40,8 +40,8 @@ const updateDivision = async (divisionId: string, payload: Partial<IDivision>) =
 	return UpdatedDivision;
 };
 
-const getDivisionById = async (divisionId: string) => {
-	const isDivisionExist = await Division.findById(divisionId);
+const getSingleDivision = async (slug: string) => {
+	const isDivisionExist = await Division.findOne({ slug });
 	if (!isDivisionExist) {
 		throw new AppError(httpStatus.NOT_FOUND, "Division Not Found!");
 	}
@@ -65,6 +65,6 @@ export const DivisionServices = {
 	createDivision,
 	updateDivision,
 	getAllDivision,
-	getDivisionById,
+	getSingleDivision,
 	deleteDivision,
 };
