@@ -1,24 +1,27 @@
-import { Types } from "mongoose"
+import { Types } from "mongoose";
 
 export interface ITourType {
-    name: string
+	_id?: string;
+	name: string;
 }
 
 export interface ITour {
-    title: string
-    slug: string
-    description?: string
-    images?: string[]
-    location?: string
-    costFrom?: number
-    stateDate?: Date
-    endDate?: Date
-    included?: string[]
-    excluded?: string[]
-    amenities?: string[]
-    tourPlan?: string[]
-    maxGuest?: number
-    minAge?: number
-    division: Types.ObjectId
-    tourType: Types.ObjectId
+	title: string;
+	slug?: string;
+	description?: string;
+	images?: string[];
+	location?: string;
+	costFrom?: number;
+	departureLocation?: string;
+	arrivalLocation?: string;
+	stateDate?: Date;
+	endDate?: Date;
+	included?: string[];
+	excluded?: string[];
+	amenities?: string[];
+	tourPlan?: string[];
+	maxGuest?: number;
+	minAge?: number;
+	division: Types.ObjectId;
+	tourType: Types.ObjectId;
 }
