@@ -3,44 +3,56 @@ import { Request, Response } from "express";
 import { catchAsync } from "../../utils/catch-async";
 import { PaymentServices } from "./payment.service";
 import { sendResponse } from "../../utils/send-response";
+import { envVars } from "../../config/env";
 
 const initializePayment = catchAsync(async (req: Request, res: Response) => {
-	const paymentId = req.params.paymentId;
-	const payload = req.body;
-	const newTour = await PaymentServices.initializePayment(paymentId, payload);
+	const bookingId = req.params.bookingId;
+	const paymentData = await PaymentServices.initializePayment(bookingId);
 
 	sendResponse(res, {
 		success: true,
 		statusCode: httpStatusCode.CREATED,
 		message: "Payment initialized!",
-		data: newTour,
+		data: paymentData,
 	});
 });
 
-const verifyPayment = catchAsync(async (req: Request, res: Response) => {
-	const newTour = await PaymentServices.verifyPayment();
+const successPayment = catchAsync(async (req: Request, res: Response) => {
+	const query = req.query;
+	const sslPayment = await PaymentServices.successPayment(query as Record<string, string>);
 
-	sendResponse(res, {
-		success: true,
-		statusCode: httpStatusCode.OK,
-		message: "Payment Verified Successfully!",
-		data: newTour,
-	});
+	if (sslPayment.success) {
+		res.redirect(
+			`${envVars.SSL_SUCCESS_FRONTEND_URL}?transactionId=${query.transactionId}&amount=${query.amount}&status=${query.status}`
+		);
+	}
 });
 
-const paymentStats = catchAsync(async (req: Request, res: Response) => {
-	const newTour = await PaymentServices.paymentStats();
+const failPayment = catchAsync(async (req: Request, res: Response) => {
+	const query = req.query;
+	const sslPayment = await PaymentServices.failPayment(query as Record<string, string>);
 
-	sendResponse(res, {
-		success: true,
-		statusCode: httpStatusCode.OK,
-		message: "Payment Stats Retrieved Successfully!",
-		data: newTour,
-	});
+	if (sslPayment.success) {
+		res.redirect(
+			`${envVars.SSL_SUCCESS_FRONTEND_URL}?transactionId=${query.transactionId}&amount=${query.amount}&status=${query.status}`
+		);
+	}
+});
+
+const cancelPayment = catchAsync(async (req: Request, res: Response) => {
+	const query = req.query;
+	const sslPayment = await PaymentServices.cancelPayment(query as Record<string, string>);
+
+	if (sslPayment.success) {
+		res.redirect(
+			`${envVars.SSL_SUCCESS_FRONTEND_URL}?transactionId=${query.transactionId}&amount=${query.amount}&status=${query.status}`
+		);
+	}
 });
 
 export const PaymentControllers = {
 	initializePayment,
-	verifyPayment,
-	paymentStats,
+	successPayment,
+	failPayment,
+	cancelPayment,
 };
