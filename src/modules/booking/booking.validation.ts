@@ -1,0 +1,17 @@
+import z from "zod";
+import { BOOKING_STATUS } from "./booking.interface";
+
+export const createBookingZodSchema = z.object({
+	tour: z.string({
+		error: (issue) => {
+			if (issue.code === "invalid_type") {
+				return "There should be a valid tour.";
+			}
+		},
+	}),
+	guestCount: z.number().int().positive(),
+});
+
+export const updateBookingStatusZodSchema = z.object({
+	status: z.enum(Object.values(BOOKING_STATUS) as [string]),
+});
