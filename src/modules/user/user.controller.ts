@@ -3,6 +3,7 @@ import httpStatusCode from "http-status-codes";
 import { UserServices } from "./user.service";
 import { catchAsync } from "../../utils/catch-async";
 import { sendResponse } from "../../utils/send-response";
+import { JwtPayload } from "jsonwebtoken";
 
 const createUser = catchAsync(async (req: Request, res: Response) => {
 	const user = await UserServices.createUser(req.body);
@@ -16,14 +17,15 @@ const createUser = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getAllUsers = catchAsync(async (req: Request, res: Response) => {
-	const userResponse = await UserServices.getAllUsers();
+	const query = req.query as Record<string, string>;
+	const response = await UserServices.getAllUsers(query);
 
 	sendResponse(res, {
 		success: true,
 		statusCode: httpStatusCode.OK,
 		message: "User Created Successfully!",
-		data: userResponse.data,
-		meta: { total: userResponse.total },
+		data: response.data,
+		meta: response.meta,
 	});
 });
 
@@ -41,8 +43,34 @@ const updateUser = catchAsync(async (req: Request, res: Response) => {
 	});
 });
 
+const getSingleUser = catchAsync(async (req: Request, res: Response) => {
+	const userId = req.params.id;
+	const response = await UserServices.getSingleUser(userId);
+
+	sendResponse(res, {
+		success: true,
+		statusCode: httpStatusCode.OK,
+		message: "User Retrieve Successfully!",
+		data: response.data,
+	});
+});
+
+const getMe = catchAsync(async (req: Request, res: Response) => {
+	const decodedToken = req.user as JwtPayload;
+	const response = await UserServices.getMe(decodedToken.userId);
+
+	sendResponse(res, {
+		success: true,
+		statusCode: httpStatusCode.OK,
+		message: "User Retrieve Successfully!",
+		data: response.data,
+	});
+});
+
 export const userControllers = {
 	createUser,
 	getAllUsers,
 	updateUser,
+	getSingleUser,
+	getMe,
 };

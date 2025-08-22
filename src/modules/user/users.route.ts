@@ -5,8 +5,10 @@ import { validateRequest } from "../../middlewares/validated-request";
 import { checkAuth } from "../../middlewares/check-auth";
 import { Role } from "./user.interface";
 
-export const UserRoutes = Router()
+export const UserRoutes = Router();
 
-UserRoutes.post("/register", validateRequest(createUserZodSchema), userControllers.createUser)
-UserRoutes.get("/", checkAuth(Role.ADMIN, Role.SUPER_ADMIN), userControllers.getAllUsers)
-UserRoutes.patch("/:id", checkAuth(...Object.values(Role)), userControllers.updateUser)
+UserRoutes.post("/register", validateRequest(createUserZodSchema), userControllers.createUser);
+UserRoutes.get("/", checkAuth(Role.ADMIN, Role.SUPER_ADMIN), userControllers.getAllUsers);
+UserRoutes.get("/me", checkAuth(...Object.values(Role)), userControllers.getMe);
+UserRoutes.get("/:id", checkAuth(...Object.values(Role)), userControllers.getSingleUser);
+UserRoutes.patch("/:id", checkAuth(...Object.values(Role)), userControllers.updateUser);
