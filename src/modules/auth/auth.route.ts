@@ -3,6 +3,7 @@ import { AuthControllers } from "./auth.controller";
 import { checkAuth } from "../../middlewares/check-auth";
 import { Role } from "../user/user.interface";
 import passport from "passport";
+import { envVars } from "../../config/env";
 
 export const AuthRouter = Router();
 
@@ -19,4 +20,8 @@ AuthRouter.get("/google", async (req: Request, res: Response, next: NextFunction
 		state: redirect as string,
 	})(req, res, next);
 });
-AuthRouter.get("/google/callback", passport.authenticate("google", { failureRedirect: "/login" }), AuthControllers.googleCallbackController);
+AuthRouter.get(
+	"/google/callback",
+	passport.authenticate("google", { failureRedirect: `${envVars.FRONTEND_URL}/login?accountError=true` }),
+	AuthControllers.googleCallbackController
+);

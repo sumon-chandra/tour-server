@@ -4,7 +4,7 @@ import passport from "passport";
 import { Strategy as GoogleStrategy, Profile, VerifyCallback } from "passport-google-oauth20";
 import { envVars } from "./env";
 import { User } from "../modules/user/user.model";
-import { Role } from "../modules/user/user.interface";
+import { IsActive, Role } from "../modules/user/user.interface";
 
 passport.use(
 	new GoogleStrategy(
@@ -20,10 +20,22 @@ passport.use(
 					return done(null, false, { message: "Email Not Found!" });
 				}
 
-				let user = await User.findOne({ email });
+				let existingUser = await User.findOne({ email });
 
-				if (!user) {
-					user = await User.create({
+				if (existingUser && (existingUser.isActive === IsActive.BLOCKED || existingUser.isActive === IsActive.INACTIVE)) {
+					return done(null, false, { message: `User is ${existingUser.isActive}` });
+				}
+
+				if (existingUser && existingUser.isDeleted) {
+					return done(null, false, { message: "User is deleted." });
+				}
+
+				if (existingUser && !existingUser.isVerified) {
+					return done(null, false, { message: "User is not verified." });
+				}
+
+				if (!existingUser) {
+					existingUser = await User.create({
 						email,
 						name: profile.displayName,
 						picture: profile.photos?.[0].value,
@@ -38,7 +50,7 @@ passport.use(
 					});
 				}
 
-				return done(null, user);
+				return done(null, existingUser);
 			} catch (error) {
 				console.log("Google Strategy Error: ", error);
 				return done(error);

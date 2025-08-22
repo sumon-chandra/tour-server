@@ -1,5 +1,5 @@
 import AppError from "../../error-helpers/app-error";
-import { IAuthProvider, IUser } from "../user/user.interface";
+import { IAuthProvider, IsActive, IUser } from "../user/user.interface";
 import { User } from "../user/user.model";
 import httpStatus from "http-status-codes";
 import bcrypt from "bcryptjs";
@@ -10,21 +10,33 @@ import { envVars } from "../../config/env";
 const credentialsLogin = async (payload: Partial<IUser>) => {
 	const { email, password } = payload;
 
-	const isUserExist = await User.findOne({ email });
+	const existingUser = await User.findOne({ email });
 
-	if (!isUserExist) {
+	if (!existingUser) {
 		throw new AppError(httpStatus.BAD_REQUEST, "Hmm, looks doesn't registered. Please register first.");
 	}
 
-	const isPasswordCorrect = await bcrypt.compare(password!, isUserExist.password!);
+	if (existingUser.isActive === IsActive.BLOCKED || existingUser.isActive === IsActive.INACTIVE) {
+		throw new AppError(httpStatus.FORBIDDEN, `User is ${existingUser.isActive}`);
+	}
+
+	if (existingUser.isDeleted) {
+		throw new AppError(httpStatus.FORBIDDEN, "User is deleted.");
+	}
+
+	if (!existingUser.isVerified) {
+		throw new AppError(httpStatus.FORBIDDEN, "User is not verified.");
+	}
+
+	const isPasswordCorrect = await bcrypt.compare(password!, existingUser.password!);
 
 	if (!isPasswordCorrect) {
 		throw new AppError(httpStatus.BAD_REQUEST, "Incorrect Password");
 	}
 
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	const { password: _, ...restUser } = isUserExist.toObject();
-	const userTokens = createUserTokens(isUserExist);
+	const { password: _, ...restUser } = existingUser.toObject();
+	const userTokens = createUserTokens(existingUser);
 
 	return {
 		accessToken: userTokens.accessToken,
