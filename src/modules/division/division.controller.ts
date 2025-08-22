@@ -5,8 +5,11 @@ import { sendResponse } from "../../utils/send-response";
 import { DivisionServices } from "./division.service";
 
 const createDivision = catchAsync(async (req: Request, res: Response) => {
-	const division = await DivisionServices.createDivision(req.body);
-
+	const payload = {
+		...req.body,
+		thumbnail: req.file?.path,
+	};
+	const division = await DivisionServices.createDivision(payload);
 	sendResponse(res, {
 		success: true,
 		statusCode: httpStatusCode.CREATED,
@@ -17,7 +20,10 @@ const createDivision = catchAsync(async (req: Request, res: Response) => {
 
 const updateDivision = catchAsync(async (req: Request, res: Response) => {
 	const divisionId = req.params.id;
-	const payload = req.body;
+	const payload = {
+		...req.body,
+		thumbnail: req.file?.path,
+	};
 	const updatedDivision = await DivisionServices.updateDivision(divisionId, payload);
 
 	sendResponse(res, {

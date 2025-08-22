@@ -8,11 +8,21 @@ import { handlerValidationError } from "../helpers/handle-validation-error";
 import { handlerZodError } from "../helpers/handle-zod-error";
 import AppError from "../error-helpers/app-error";
 import { TErrorSources } from "../interfaces/error.types";
+import { deleteImageFromCLoudinary } from "../config/cloudinary.config";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const globalErrorHandler = (err: any, req: Request, res: Response, next: NextFunction) => {
+export const globalErrorHandler = async (err: any, req: Request, res: Response, next: NextFunction) => {
 	if (envVars.NODE_ENV === "development") {
 		console.log(err);
+	}
+
+	if (req.file) {
+		await deleteImageFromCLoudinary(req.file.path);
+	}
+
+	if (req.files && Array.isArray(req.files) && req.files.length) {
+		const imgUrls = (req.files as Express.Multer.File[]).map((file) => file.path);
+		await Promise.all(imgUrls.map((url) => deleteImageFromCLoudinary(url)));
 	}
 
 	let errorSources: TErrorSources[] = [];
