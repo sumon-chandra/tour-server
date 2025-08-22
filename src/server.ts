@@ -9,7 +9,7 @@ let server: Server;
 
 const connectServer = async () => {
 	try {
-		await mongoose.connect("mongodb+srv://idevsumon:idevsumon@clustertour.y0fyyxe.mongodb.net/TourBackendDB");
+		await mongoose.connect(envVars.MONGODB_URI);
 		console.log("MongoDB connected successfully!");
 		server = app.listen(envVars.PORT, () => {
 			console.log(`Server is listing on port http://localhost:${envVars.PORT}`);

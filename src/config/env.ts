@@ -1,7 +1,7 @@
 import dotEnv from "dotenv";
 dotEnv.config();
-
 interface EnvTypes {
+	MONGODB_URI: string;
 	NODE_ENV: "development" | "production";
 	DB_URL: string;
 	PORT: string;
@@ -34,6 +34,7 @@ interface EnvTypes {
 
 const loadEnv = (): EnvTypes => {
 	const envVarsArray = [
+		"MONGODB_URI",
 		"NODE_ENV",
 		"DB_URL",
 		"PORT",
@@ -71,6 +72,7 @@ const loadEnv = (): EnvTypes => {
 	});
 	return {
 		NODE_ENV: process.env.NODE_ENV as "development" | "production",
+		MONGODB_URI: process.env.MONGODB_URI as string,
 		DB_URL: process.env.DB_URL as string,
 		PORT: process.env.PORT as string,
 		JWT_ACCESS_SECRET: process.env.JWT_ACCESS_SECRET as string,
