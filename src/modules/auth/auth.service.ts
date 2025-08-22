@@ -1,5 +1,5 @@
 import AppError from "../../error-helpers/app-error";
-import { IUser } from "../user/user.interface";
+import { IAuthProvider, IUser } from "../user/user.interface";
 import { User } from "../user/user.model";
 import httpStatus from "http-status-codes";
 import bcrypt from "bcryptjs";
@@ -33,7 +33,7 @@ const credentialsLogin = async (payload: Partial<IUser>) => {
 	};
 };
 
-const resetPassword = async (oldPassword: string, newPassword: string, decodedToken: JwtPayload) => {
+const changePassword = async (oldPassword: string, newPassword: string, decodedToken: JwtPayload) => {
 	const user = await User.findById(decodedToken.userId);
 
 	const isOldPasswordMatch = await bcrypt.compare(oldPassword, user!.password as string);
@@ -47,6 +47,29 @@ const resetPassword = async (oldPassword: string, newPassword: string, decodedTo
 	return true;
 };
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const resetPassword = async (oldPassword: string, newPassword: string, decodedToken: JwtPayload) => {
+	return {};
+};
+
+const setPassword = async (userId: string, newPassword: string) => {
+	const user = await User.findById(userId);
+	if (!user) {
+		throw new AppError(httpStatus.NOT_FOUND, "User Not Found!!");
+	}
+	if (user.password && user.auths?.some((authProvider) => authProvider.provider === "google")) {
+		throw new AppError(httpStatus.BAD_REQUEST, "You can change the password from your profile.");
+	}
+
+	const hashedPassword = await bcrypt.hash(newPassword, Number(envVars.BCRYPT_SALT_ROUND));
+	const auths: IAuthProvider[] = [...user.auths!, { provider: "credentials", providerId: user.email }];
+
+	user.password = hashedPassword;
+	user.auths = auths;
+
+	user.save();
+};
+
 const getNewUserAccessToken = async (refreshToken: string) => {
 	const newAccessToken = await createAccessTokenWithRefreshToken(refreshToken);
 
@@ -58,5 +81,7 @@ const getNewUserAccessToken = async (refreshToken: string) => {
 export const AuthServices = {
 	credentialsLogin,
 	getNewUserAccessToken,
+	changePassword,
 	resetPassword,
+	setPassword,
 };
