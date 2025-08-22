@@ -13,6 +13,7 @@ AuthRouter.post("/logout", AuthControllers.logout);
 AuthRouter.post("/change-password", checkAuth(...Object.values(Role)), AuthControllers.changePassword);
 AuthRouter.post("/reset-password", checkAuth(...Object.values(Role)), AuthControllers.resetPassword);
 AuthRouter.post("/set-password", checkAuth(...Object.values(Role)), AuthControllers.setPassword);
+AuthRouter.post("/forgot-password", AuthControllers.forgotPassword);
 AuthRouter.get("/google", async (req: Request, res: Response, next: NextFunction) => {
 	const redirect = req.query.redirect || "/";
 	passport.authenticate("google", {

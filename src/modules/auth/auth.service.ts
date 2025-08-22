@@ -6,6 +6,8 @@ import bcrypt from "bcryptjs";
 import { createAccessTokenWithRefreshToken, createUserTokens } from "../../utils/user-token";
 import { JwtPayload } from "jsonwebtoken";
 import { envVars } from "../../config/env";
+import jwt from "jsonwebtoken";
+import { sendEmail } from "../../utils/send-email";
 
 const credentialsLogin = async (payload: Partial<IUser>) => {
 	const { email, password } = payload;
@@ -60,7 +62,17 @@ const changePassword = async (oldPassword: string, newPassword: string, decodedT
 };
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const resetPassword = async (oldPassword: string, newPassword: string, decodedToken: JwtPayload) => {
+const resetPassword = async (id: string, newPassword: string, decodedToken: JwtPayload) => {
+	if (id !== decodedToken.userId) {
+		throw new AppError(httpStatus.BAD_REQUEST, "You can not reset your password.");
+	}
+	const isUserExist = await User.findById(decodedToken.userId);
+	if (!isUserExist) {
+		throw new AppError(httpStatus.NOT_FOUND, "User not found.");
+	}
+
+	isUserExist.password = await bcrypt.hash(newPassword, Number(envVars.BCRYPT_SALT_ROUND));
+	isUserExist.save();
 	return {};
 };
 
@@ -82,6 +94,41 @@ const setPassword = async (userId: string, newPassword: string) => {
 	user.save();
 };
 
+const forgotPassword = async (email: string) => {
+	const isUserExist = await User.findOne({ email });
+	if (isUserExist?.isActive === IsActive.BLOCKED || isUserExist?.isActive === IsActive.INACTIVE) {
+		throw new AppError(httpStatus.FORBIDDEN, `User is ${isUserExist.isActive}`);
+	}
+
+	if (isUserExist?.isDeleted) {
+		throw new AppError(httpStatus.FORBIDDEN, "User is deleted.");
+	}
+
+	if (!isUserExist?.isVerified) {
+		throw new AppError(httpStatus.FORBIDDEN, "User is not verified.");
+	}
+
+	const jwtPayload = {
+		userId: isUserExist?._id,
+		email: isUserExist?.email,
+		role: isUserExist?.role,
+	};
+	const resetToken = jwt.sign(jwtPayload, envVars.JWT_ACCESS_SECRET, {
+		expiresIn: "10m",
+	});
+
+	const resetUILink = `${envVars.FRONTEND_URL}/reset-password?id=${isUserExist._id}&token=${resetToken}`;
+	sendEmail({
+		to: isUserExist.email,
+		subject: "Reset Password",
+		templateName: "forgot-password",
+		templateData: {
+			name: isUserExist.name,
+			resetUILink,
+		},
+	});
+};
+
 const getNewUserAccessToken = async (refreshToken: string) => {
 	const newAccessToken = await createAccessTokenWithRefreshToken(refreshToken);
 
@@ -96,4 +143,5 @@ export const AuthServices = {
 	changePassword,
 	resetPassword,
 	setPassword,
+	forgotPassword,
 };
