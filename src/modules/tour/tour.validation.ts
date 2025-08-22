@@ -234,4 +234,5 @@ export const updateTourZodSchema = z.object({
 			message: "Please provide a valid Tour Type ObjectId.",
 		})
 		.optional(),
+	deletedImages: z.array(z.string()).optional(),
 });

@@ -4,10 +4,11 @@ import { ITour, ITourType } from "./tour.interface";
 import { Tour, TourType } from "./tour.model";
 import { tourSearchableFields } from "./tour.constant";
 import { QueryBuilder } from "../../utils/query-builder";
+import { deleteImageFromCLoudinary } from "../../config/cloudinary.config";
 
 const createTour = async (payload: Partial<ITour>) => {
-	const isTourExist = await Tour.findOne({ title: payload.title });
-	if (isTourExist) {
+	const existingTour = await Tour.findOne({ title: payload.title });
+	if (existingTour) {
 		throw new AppError(httpStatus.CONFLICT, "Looks like this tour is already exist! Try with a new one.");
 	}
 	const newTour = await Tour.create(payload);
@@ -27,27 +28,44 @@ const getAllTour = async (query: Record<string, string>) => {
 };
 
 const getTourById = async (tourId: string) => {
-	const isTourExist = await Tour.findById(tourId);
-	if (!isTourExist) {
+	const existingTour = await Tour.findById(tourId);
+	if (!existingTour) {
 		throw new AppError(httpStatus.NOT_FOUND, "The tour is not found.");
 	}
 	return {
-		data: isTourExist,
+		data: existingTour,
 	};
 };
 
 const updateTour = async (tourId: string, payload: Partial<ITour>) => {
-	const isTourExist = await Tour.findById(tourId);
-	if (!isTourExist) {
+	const existingTour = await Tour.findById(tourId);
+	if (!existingTour) {
 		throw new AppError(httpStatus.NOT_FOUND, "The tour is not found.");
 	}
+
+	if (payload.images && payload.images.length > 0 && existingTour.images && existingTour.images.length > 0) {
+		payload.images = [...existingTour.images, ...payload.images];
+	}
+	if (payload.deletedImages && payload.deletedImages.length > 0 && existingTour.images && existingTour.images.length > 0) {
+		const restDBImages = existingTour.images.filter((imageUrl) => !payload.deletedImages?.includes(imageUrl));
+		const updatedPayloadImages = (payload.images || [])
+			.filter((imageUrl) => !payload.deletedImages?.includes(imageUrl))
+			.filter((imageUrl) => !restDBImages?.includes(imageUrl));
+		payload.images = [...restDBImages, ...updatedPayloadImages];
+	}
+
 	const updatedTour = await Tour.findByIdAndUpdate(tourId, payload, { new: true });
+
+	if (payload.deletedImages && payload.deletedImages.length > 0 && existingTour.images && existingTour.images.length > 0) {
+		await Promise.all(payload.deletedImages.map((url) => deleteImageFromCLoudinary(url)));
+	}
+
 	return updatedTour;
 };
 
 const deleteTour = async (tourId: string) => {
-	const isTourExist = await Tour.findById(tourId);
-	if (!isTourExist) {
+	const existingTour = await Tour.findById(tourId);
+	if (!existingTour) {
 		throw new AppError(httpStatus.NOT_FOUND, "The tour is not found.");
 	}
 
