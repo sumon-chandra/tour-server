@@ -4,6 +4,7 @@ import { Server } from "node:http";
 import app from "./app";
 import { envVars } from "./config/env";
 import { seedSuperAdmin } from "./utils/seed-super-admin";
+import { redisConnect } from "./config/redis.config";
 
 let server: Server;
 
@@ -20,6 +21,7 @@ const connectServer = async () => {
 };
 
 (async () => {
+	await redisConnect();
 	await connectServer();
 	await seedSuperAdmin();
 })();
