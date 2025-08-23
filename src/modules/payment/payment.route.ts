@@ -6,3 +6,4 @@ PaymentRouter.post("/success", PaymentControllers.successPayment);
 PaymentRouter.post("/fail", PaymentControllers.failPayment);
 PaymentRouter.post("/cancel", PaymentControllers.cancelPayment);
 PaymentRouter.post("/init-payment/:bookingId", PaymentControllers.initializePayment);
+PaymentRouter.get("/invoice/:paymentId", PaymentControllers.getPaymentInvoiceUrl);

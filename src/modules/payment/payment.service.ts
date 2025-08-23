@@ -10,6 +10,7 @@ import { SSLCommerzServices } from "../sslCommerz/sslCommerz.service";
 import { ITour } from "../tour/tour.interface";
 import { IUser } from "../user/user.interface";
 import { sendEmail } from "../../utils/send-email";
+import { uploadBufferToCloudinary } from "../../config/cloudinary.config";
 
 const initializePayment = async (bookingId: string) => {
 	const payment = await Payment.findOne({ booking: bookingId });
@@ -69,6 +70,13 @@ const successPayment = async (query: Record<string, string>) => {
 		};
 
 		const pdfBuffer = await generatePdf(invoiceData);
+		const cloudinaryResponse = await uploadBufferToCloudinary(pdfBuffer, "invoice");
+
+		if (!cloudinaryResponse) {
+			throw new AppError(httpStatus.BAD_REQUEST, "Failed to upload PDF.");
+		}
+
+		await Payment.findByIdAndUpdate(updatedPayment._id, { invoiceUrl: cloudinaryResponse.secure_url }, { runValidators: true, session });
 
 		await sendEmail({
 			to: (updatedBooking.user as unknown as IUser).email,
@@ -143,9 +151,22 @@ const cancelPayment = async (query: Record<string, string>) => {
 	}
 };
 
+const getPaymentInvoiceUrl = async (paymentId: string) => {
+	const payment = await Payment.findById(paymentId);
+	if (!payment) {
+		throw new AppError(httpStatus.NOT_FOUND, "Payment Not Found");
+	}
+	if (!payment.invoiceUrl) {
+		throw new AppError(httpStatus.NOT_FOUND, "Payment Invoice Not Found");
+	}
+
+	return payment.invoiceUrl;
+};
+
 export const PaymentServices = {
 	initializePayment,
 	successPayment,
 	failPayment,
 	cancelPayment,
+	getPaymentInvoiceUrl,
 };
