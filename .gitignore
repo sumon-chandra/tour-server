@@ -64,3 +64,4 @@ debug.log
 # Optional: ignore ESLint/Prettier caches
 .eslintcache
 .prettiercache
+.vercel
