@@ -75,18 +75,18 @@ const createBooking = async (payload: Partial<IBooking>, userId: string) => {
 	}
 };
 
-const getMyBookings = async () => {};
+// const getMyBookings = async () => {};
 
-const getBookingById = async (bookingId: string) => {};
+// const getBookingById = async (bookingId: string) => {};
 
-const getAllBookings = async () => {};
+// const getAllBookings = async () => {};
 
-const updateBookingStatus = async (bookingId: string, status: BOOKING_STATUS) => {};
+// const updateBookingStatus = async (bookingId: string, status: BOOKING_STATUS) => {};
 
 export const BookingServices = {
 	createBooking,
-	getMyBookings,
-	getBookingById,
-	getAllBookings,
-	updateBookingStatus,
+	// getMyBookings,
+	// getBookingById,
+	// getAllBookings,
+	// updateBookingStatus,
 };

@@ -18,57 +18,57 @@ const createBooking = catchAsync(async (req: Request, res: Response) => {
 	});
 });
 
-const getMyBookings = catchAsync(async (req: Request, res: Response) => {
-	const myBookings = await BookingServices.getMyBookings();
+// const getMyBookings = catchAsync(async (req: Request, res: Response) => {
+// 	const myBookings = await BookingServices.getMyBookings();
 
-	sendResponse(res, {
-		success: true,
-		statusCode: httpStatusCode.OK,
-		message: "My bookings has been retrieved!",
-		data: myBookings,
-	});
-});
+// 	sendResponse(res, {
+// 		success: true,
+// 		statusCode: httpStatusCode.OK,
+// 		message: "My bookings has been retrieved!",
+// 		data: myBookings,
+// 	});
+// });
 
-const getBookingById = catchAsync(async (req: Request, res: Response) => {
-	const bookingId = req.params.bookingId;
-	const myBookings = await BookingServices.getBookingById(bookingId);
+// const getBookingById = catchAsync(async (req: Request, res: Response) => {
+// 	const bookingId = req.params.bookingId;
+// 	const myBookings = await BookingServices.getBookingById(bookingId);
 
-	sendResponse(res, {
-		success: true,
-		statusCode: httpStatusCode.OK,
-		message: "The booking details has been retrieved successfully!",
-		data: myBookings,
-	});
-});
+// 	sendResponse(res, {
+// 		success: true,
+// 		statusCode: httpStatusCode.OK,
+// 		message: "The booking details has been retrieved successfully!",
+// 		data: myBookings,
+// 	});
+// });
 
-const getAllBookings = catchAsync(async (req: Request, res: Response) => {
-	const myBookings = await BookingServices.getAllBookings();
+// const getAllBookings = catchAsync(async (req: Request, res: Response) => {
+// 	const myBookings = await BookingServices.getAllBookings();
 
-	sendResponse(res, {
-		success: true,
-		statusCode: httpStatusCode.OK,
-		message: "All bookings has been retrieved!",
-		data: myBookings,
-	});
-});
+// 	sendResponse(res, {
+// 		success: true,
+// 		statusCode: httpStatusCode.OK,
+// 		message: "All bookings has been retrieved!",
+// 		data: myBookings,
+// 	});
+// });
 
-const updateBookingStatus = catchAsync(async (req: Request, res: Response) => {
-	const bookingId = req.params.bookingId;
-	const bookingStatus = req.body.status;
-	const myBookings = await BookingServices.updateBookingStatus(bookingId, bookingStatus);
+// const updateBookingStatus = catchAsync(async (req: Request, res: Response) => {
+// 	const bookingId = req.params.bookingId;
+// 	const bookingStatus = req.body.status;
+// 	const myBookings = await BookingServices.updateBookingStatus(bookingId, bookingStatus);
 
-	sendResponse(res, {
-		success: true,
-		statusCode: httpStatusCode.OK,
-		message: "My bookings has been retrieved!",
-		data: myBookings,
-	});
-});
+// 	sendResponse(res, {
+// 		success: true,
+// 		statusCode: httpStatusCode.OK,
+// 		message: "My bookings has been retrieved!",
+// 		data: myBookings,
+// 	});
+// });
 
 export const BookingControllers = {
 	createBooking,
-	getMyBookings,
-	getBookingById,
-	getAllBookings,
-	updateBookingStatus,
+	// getMyBookings,
+	// getBookingById,
+	// getAllBookings,
+	// updateBookingStatus,
 };
