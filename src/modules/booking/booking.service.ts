@@ -8,12 +8,7 @@ import { Booking } from "./booking.model";
 import { Payment } from "../payment/payment.model";
 import { PAYMENT_STATUS } from "../payment/payment.interface";
 import { SSLCommerzServices } from "../sslCommerz/sslCommerz.service";
-
-const generateTransactionId = () => {
-	const timestamp = Date.now().toString(36).toUpperCase();
-	const randomPart = Math.random().toString(36).substring(2, 8).toUpperCase();
-	return `TXN${timestamp}${randomPart}`;
-};
+import { generateTransactionId } from "../../utils/generate-transaction-id";
 
 const createBooking = async (payload: Partial<IBooking>, userId: string) => {
 	const transactionId = generateTransactionId();
@@ -52,11 +47,7 @@ const createBooking = async (payload: Partial<IBooking>, userId: string) => {
 			],
 			{ session }
 		);
-		const updatedBooking = await Booking.findByIdAndUpdate(
-			booking[0]._id,
-			{ payment: payment[0]._id },
-			{ new: true, runValidators: true, session }
-		)
+		const updatedBooking = await Booking.findByIdAndUpdate(booking[0]._id, { payment: payment[0]._id }, { new: true, runValidators: true, session })
 			.populate("user", "name phone email")
 			.populate("tour", "title costFrom")
 			.populate("payment");
