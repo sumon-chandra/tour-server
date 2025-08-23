@@ -48,20 +48,21 @@ const credentialsLogin = async (payload: Partial<IUser>) => {
 };
 
 const changePassword = async (oldPassword: string, newPassword: string, decodedToken: JwtPayload) => {
-	const user = await User.findById(decodedToken.userId);
+	if (oldPassword === newPassword) {
+		throw new AppError(httpStatus.CONFLICT, "You can not use the same password. Try different one.");
+	}
 
+	const user = await User.findById(decodedToken.userId);
 	const isOldPasswordMatch = await bcrypt.compare(oldPassword, user!.password as string);
+
 	if (!isOldPasswordMatch) {
 		throw new AppError(httpStatus.CONFLICT, "Old Password Does Not Match.");
 	}
 
 	user!.password = await bcrypt.hash(newPassword, Number(envVars.BCRYPT_SALT_ROUND));
 	user!.save();
-
-	return true;
 };
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const resetPassword = async (id: string, newPassword: string, decodedToken: JwtPayload) => {
 	if (id !== decodedToken.userId) {
 		throw new AppError(httpStatus.BAD_REQUEST, "You can not reset your password.");

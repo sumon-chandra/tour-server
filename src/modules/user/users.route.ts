@@ -10,5 +10,5 @@ export const UserRoutes = Router();
 UserRoutes.post("/register", validateRequest(createUserZodSchema), userControllers.createUser);
 UserRoutes.get("/", checkAuth(Role.ADMIN, Role.SUPER_ADMIN), userControllers.getAllUsers);
 UserRoutes.get("/me", checkAuth(...Object.values(Role)), userControllers.getMe);
-UserRoutes.get("/:id", checkAuth(...Object.values(Role)), userControllers.getSingleUser);
+UserRoutes.get("/:id", checkAuth(Role.ADMIN, Role.SUPER_ADMIN), userControllers.getSingleUser);
 UserRoutes.patch("/:id", checkAuth(...Object.values(Role)), userControllers.updateUser);

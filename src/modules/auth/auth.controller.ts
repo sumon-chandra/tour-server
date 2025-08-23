@@ -48,7 +48,7 @@ const changePassword = catchAsync(async (req: Request, res: Response) => {
 		throw new AppError(httpStatusCode.NOT_FOUND, "User Not Found!");
 	}
 
-	await AuthServices.resetPassword(oldPassword, newPassword, decodedToken);
+	await AuthServices.changePassword(oldPassword, newPassword, decodedToken);
 
 	sendResponse(res, {
 		success: true,
